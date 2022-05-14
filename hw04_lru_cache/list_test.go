@@ -6,6 +6,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func GetValues(l List) (values []int) {
+	elems := make([]int, 0, l.Len())
+	for i := l.Front(); i != nil; i = i.Next {
+		elems = append(elems, i.Value.(int))
+	}
+	return elems
+}
+
 func TestList(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
 		l := NewList()
@@ -42,10 +50,22 @@ func TestList(t *testing.T) {
 		l.MoveToFront(l.Front()) // [80, 60, 40, 10, 30, 50, 70]
 		l.MoveToFront(l.Back())  // [70, 80, 60, 40, 10, 30, 50]
 
-		elems := make([]int, 0, l.Len())
-		for i := l.Front(); i != nil; i = i.Next {
-			elems = append(elems, i.Value.(int))
-		}
-		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
+		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, GetValues(l))
+	})
+
+	t.Run("MoveToFrontFromDifferentPositions", func(t *testing.T) {
+		l := NewList()
+		firstItem := l.PushFront(10) // [10]
+		middleItem := l.PushBack(20) // [10, 20]
+		lastItem := l.PushBack(30)   // [10, 20, 30]
+
+		l.MoveToFront(firstItem) // [10, 20, 30]
+		require.Equal(t, []int{10, 20, 30}, GetValues(l))
+
+		l.MoveToFront(middleItem) // [20, 10, 30]
+		require.Equal(t, []int{20, 10, 30}, GetValues(l))
+
+		l.MoveToFront(lastItem) // [30, 20, 10]
+		require.Equal(t, []int{30, 20, 10}, GetValues(l))
 	})
 }
