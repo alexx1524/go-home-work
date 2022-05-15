@@ -24,6 +24,7 @@ type cacheItem struct {
 	value interface{}
 }
 
+// Set adds or updates cached value by string key and move the cashed item to the top if the cached item exists.
 func (c *lruCache) Set(key Key, value interface{}) bool {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -48,6 +49,7 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 	return false
 }
 
+// Get gets cached value by string key and move this item to the top if cache item exists.
 func (c *lruCache) Get(key Key) (interface{}, bool) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -60,6 +62,7 @@ func (c *lruCache) Get(key Key) (interface{}, bool) {
 	return nil, false
 }
 
+// Clear removes all cached values and clear queue.
 func (c *lruCache) Clear() {
 	c.queue = NewList()
 	c.items = make(map[Key]*ListItem, c.capacity)
