@@ -110,7 +110,10 @@ func TestEnglishWords(t *testing.T) {
 		{input: "Leg", expected: []string{"leg"}},
 		{input: "Leg, Leg! leg 'leg'", expected: []string{"leg"}},
 		{input: "Leg - leg", expected: []string{"leg"}},
-		{input: "One, two, two, three, three, three, four, four, four, four", expected: []string{"four", "three", "two", "one"}},
+		{
+			input:    "One, two, two, three, three, three, four, four, four, four",
+			expected: []string{"four", "three", "two", "one"},
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
