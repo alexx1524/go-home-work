@@ -8,7 +8,7 @@ import (
 
 var (
 	splitPattern   = regexp.MustCompile(`\S+`)
-	replacePattern = regexp.MustCompile(`[!?,.\'\"\w]`)
+	replacePattern = regexp.MustCompile(`[!?,.\'\"]`)
 )
 
 func Top10(input string) []string {
