@@ -63,6 +63,9 @@ func (c *lruCache) Get(key Key) (interface{}, bool) {
 
 // Clear removes all cached values and clear queue.
 func (c *lruCache) Clear() {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	c.queue = NewList()
 	c.items = make(map[Key]*ListItem, c.capacity)
 }
