@@ -53,6 +53,12 @@ func TestList(t *testing.T) {
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, GetValues(l))
 	})
 
+	t.Run("Removing nil node shouldn't panic", func(t *testing.T) {
+		l := NewList()
+		l.Remove(nil)
+		require.True(t, true)
+	})
+
 	t.Run("MoveToFrontFromDifferentPositions", func(t *testing.T) {
 		l := NewList()
 		firstItem := l.PushFront(10) // [10]
