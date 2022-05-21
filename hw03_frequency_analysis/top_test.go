@@ -1,13 +1,15 @@
 package hw03frequencyanalysis
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -79,4 +81,73 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+}
+
+func TestAllowedWords(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []string
+	}{
+		{input: "Нога", expected: []string{"нога"}},
+		{input: "Нога, нога! нога 'нога'", expected: []string{"нога"}},
+		{input: "Нога - нога", expected: []string{"нога"}},
+		{input: "-", expected: []string{}},
+		{input: "Какой-то какойто", expected: []string{"какой-то", "какойто"}},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.input, func(t *testing.T) {
+			require.Equal(t, tc.expected, Top10(tc.input))
+		})
+	}
+}
+
+func TestEnglishWords(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []string
+	}{
+		{input: "Leg", expected: []string{"leg"}},
+		{input: "Leg, Leg! leg 'leg'", expected: []string{"leg"}},
+		{input: "Leg - leg", expected: []string{"leg"}},
+		{
+			input:    "One, two, two, three, three, three, four, four, four, four",
+			expected: []string{"four", "three", "two", "one"},
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.input, func(t *testing.T) {
+			require.Equal(t, tc.expected, Top10(tc.input))
+		})
+	}
+}
+
+func TestWordsOrderWithTheSameFrequency(t *testing.T) {
+	var sb strings.Builder
+
+	postfixes := []string{"15", "14", "13", "12", "11", "10", "09", "08", "07", "06", "05", "04", "03", "02", "01"}
+
+	for i := 0; i < 15; i++ {
+		sb.WriteString(strings.Repeat(fmt.Sprintf("слово-%s ", postfixes[i]), 133))
+	}
+	for i := 0; i < 10; i++ {
+		sb.WriteString(strings.Repeat(fmt.Sprintf("другое-слово-%s ", postfixes[i]), 99))
+	}
+
+	text := sb.String()
+
+	expected := []string{
+		"слово-01",
+		"слово-02",
+		"слово-03",
+		"слово-04",
+		"слово-05",
+		"слово-06",
+		"слово-07",
+		"слово-08",
+		"слово-09",
+		"слово-10",
+	}
+	require.Equal(t, expected, Top10(text))
 }
