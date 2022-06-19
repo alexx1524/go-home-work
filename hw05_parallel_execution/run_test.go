@@ -67,4 +67,57 @@ func TestRun(t *testing.T) {
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
+
+	t.Run("if errors count is less than max errors count, then function returns no error", func(t *testing.T) {
+		tasksCount := 50
+		tasks := make([]Task, 0, tasksCount)
+
+		var runTasksCount int32
+
+		workersCount := 10
+		maxErrorsCount := 5
+
+		for i := 0; i < tasksCount; i++ {
+			err := fmt.Errorf("error from task %d", i)
+			i := i
+			tasks = append(tasks, func() error {
+				if i < maxErrorsCount-1 {
+					time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+					atomic.AddInt32(&runTasksCount, 1)
+					return err
+				}
+
+				time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+				return nil
+			})
+		}
+
+		err := Run(tasks, workersCount, maxErrorsCount)
+
+		require.NoError(t, err)
+	})
+
+	t.Run("if workers count is incorrect, then function returns error", func(t *testing.T) {
+		tasks := make([]Task, 0)
+		err := Run(tasks, 0, 1)
+		require.Truef(t, errors.Is(err, ErrIncorrectWorkersCount), "actual err - %v", err)
+
+		err = Run(tasks, -1, 1)
+		require.Truef(t, errors.Is(err, ErrIncorrectWorkersCount), "actual err - %v", err)
+	})
+
+	t.Run("if max errors count is incorrect, then function returns error", func(t *testing.T) {
+		tasks := make([]Task, 0)
+		err := Run(tasks, 1, 0)
+		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
+
+		err = Run(tasks, 1, -1)
+		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
+	})
+
+	t.Run("if tasks list is empty, then function returns no error", func(t *testing.T) {
+		tasks := make([]Task, 0)
+		err := Run(tasks, 1, 1)
+		require.NoError(t, err)
+	})
 }
