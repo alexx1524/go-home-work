@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -11,8 +10,9 @@ import (
 
 func TestCopy(t *testing.T) {
 	source := "testdata/input.txt"
-	destination := "dest.txt"
-	defer os.Remove(destination)
+	dir, _ := os.MkdirTemp("", "temp")
+	destination, _ := os.CreateTemp(dir, "temp")
+	defer os.RemoveAll(dir)
 
 	tests := []struct {
 		text      string
@@ -33,13 +33,13 @@ func TestCopy(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(fmt.Sprintf("Offset: %v, limit %v %s", tc.offset, tc.limit, tc.text), func(t *testing.T) {
-			err := Copy(source, destination, tc.offset, tc.limit)
+			err := Copy(source, destination.Name(), tc.offset, tc.limit)
 
 			if tc.err == nil {
 				require.Nil(t, err)
 
-				srcContent, _ := ioutil.ReadFile(tc.checkFile)
-				destContent, _ := ioutil.ReadFile(destination)
+				srcContent, _ := os.ReadFile(tc.checkFile)
+				destContent, _ := os.ReadFile(destination.Name())
 
 				require.Equal(t, string(srcContent), string(destContent))
 			} else {
@@ -49,12 +49,12 @@ func TestCopy(t *testing.T) {
 	}
 
 	t.Run("Offset exceeds file size", func(t *testing.T) {
-		err := Copy(source, destination, 10000, 0)
+		err := Copy(source, destination.Name(), 10000, 0)
 		require.Error(t, err, ErrFromPathIsUndefined)
 	})
 
 	t.Run("FromPath is undefined", func(t *testing.T) {
-		err := Copy("", destination, 0, 0)
+		err := Copy("", destination.Name(), 0, 0)
 		require.Error(t, err, ErrFromPathIsUndefined)
 	})
 
@@ -64,17 +64,17 @@ func TestCopy(t *testing.T) {
 	})
 
 	t.Run("Offset is negative", func(t *testing.T) {
-		err := Copy(source, destination, -1, 0)
+		err := Copy(source, destination.Name(), -1, 0)
 		require.Error(t, err, ErrOffsetIsNegative)
 	})
 
 	t.Run("Limit is negative", func(t *testing.T) {
-		err := Copy(source, destination, 0, -1)
+		err := Copy(source, destination.Name(), 0, -1)
 		require.Error(t, err, ErrOffsetIsNegative)
 	})
 
 	t.Run("Unsupported source file", func(t *testing.T) {
-		err := Copy("/dev/urandom", destination, 0, 0)
+		err := Copy("/dev/urandom", destination.Name(), 0, 0)
 
 		require.Equal(t, ErrUnsupportedFile, err)
 	})
