@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadDir(t *testing.T) {
@@ -46,6 +47,8 @@ func TestReadDir(t *testing.T) {
 		defer os.RemoveAll(dir)
 
 		environment, err := ReadDir(dir)
+
+		require.NoError(t, err)
 		require.Equal(t, len(environment), 0)
 	})
 
@@ -65,6 +68,7 @@ func TestReadDir(t *testing.T) {
 
 		environment, err := ReadDir(dir)
 
+		require.NoError(t, err)
 		require.Equal(t, len(environment), 1)
 		require.True(t, environment[filepath.Base(file.Name())].NeedRemove)
 	})

@@ -45,13 +45,15 @@ func getValue(fileName string) (EnvValue, error) {
 	if err != nil {
 		return result, err
 	}
-	size := fileInfo.Size()
-	if size == 0 {
+	if size := fileInfo.Size(); size == 0 {
 		result.NeedRemove = true
 		return result, nil
 	}
 
 	readFile, err := os.Open(fileName)
+	if err != nil {
+		return result, err
+	}
 	defer readFile.Close()
 
 	if err != nil {
