@@ -47,6 +47,11 @@ type (
 	AccountWithInvalidTag struct {
 		ID string `json:"id" validate:"len:"`
 	}
+
+	Person struct {
+		ID      string
+		Married bool `validate:"active:true"`
+	}
 )
 
 func TestValidateWithoutErrors(t *testing.T) {
@@ -247,5 +252,15 @@ func TestValidateErrors(t *testing.T) {
 		})
 		require.Error(t, err)
 		require.True(t, errors.Is(err, ErrWrongValidatorFormat))
+	})
+
+	t.Run("if type is not supprted returns error", func(t *testing.T) {
+		err := Validate(Person{
+			ID:      "1",
+			Married: true,
+		})
+
+		require.Error(t, err)
+		require.True(t, errors.Is(err, ErrUnsupportedValidationType))
 	})
 }
