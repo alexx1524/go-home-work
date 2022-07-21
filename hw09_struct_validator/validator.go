@@ -94,10 +94,8 @@ func switchValidator(field reflect.StructField, value reflect.Value, rules strin
 	case reflect.Uint8:
 	case reflect.Uintptr:
 	case reflect.UnsafePointer:
-	default:
-		return ErrUnsupportedValidationType
 	}
-	return nil
+	return ErrUnsupportedValidationType
 }
 
 func validateNestedStruct(value reflect.Value, validationRules string, validationErrors *ValidationErrors) error {
