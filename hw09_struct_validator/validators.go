@@ -124,14 +124,9 @@ func validateInt(fieldName string, value int, validationRules string, errors *Va
 				})
 			}
 		case "in":
-			values := strings.Split(val, ",")
-			allowedValues := make([]int, 0, len(values))
-			for _, item := range values {
-				allowedValue, err := strconv.Atoi(item)
-				if err != nil {
-					return err
-				}
-				allowedValues = append(allowedValues, allowedValue)
+			allowedValues, err := splitToIntSlice(val)
+			if err != nil {
+				return err
 			}
 			isAllowed := false
 			for _, item := range allowedValues {
@@ -149,4 +144,17 @@ func validateInt(fieldName string, value int, validationRules string, errors *Va
 		}
 	}
 	return nil
+}
+
+func splitToIntSlice(input string) ([]int, error) {
+	values := strings.Split(input, ",")
+	result := make([]int, 0, len(values))
+	for _, item := range values {
+		allowedValue, err := strconv.Atoi(item)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, allowedValue)
+	}
+	return result, nil
 }
