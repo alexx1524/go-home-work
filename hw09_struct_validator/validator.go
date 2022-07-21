@@ -83,6 +83,7 @@ func switchValidator(field reflect.StructField, value reflect.Value, rules strin
 	case reflect.Int32:
 	case reflect.Int64:
 	case reflect.Int8:
+	case reflect.Ptr:
 	case reflect.Interface:
 	case reflect.Invalid:
 	case reflect.Map:
