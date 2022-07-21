@@ -231,7 +231,6 @@ func TestValidateErrors(t *testing.T) {
 			err := Validate(tt.in)
 
 			var validationErrors ValidationErrors
-
 			require.Error(t, err)
 			require.True(t, errors.As(err, &validationErrors))
 			require.Equal(t, validationErrors, tt.expectedErr)
@@ -247,19 +246,13 @@ func TestValidateErrors(t *testing.T) {
 	})
 
 	t.Run("if validation tag format is invalid returns error", func(t *testing.T) {
-		err := Validate(AccountWithInvalidTag{
-			ID: "123",
-		})
+		err := Validate(AccountWithInvalidTag{ID: "123"})
 		require.Error(t, err)
 		require.True(t, errors.Is(err, ErrWrongValidatorFormat))
 	})
 
-	t.Run("if type is not supprted returns error", func(t *testing.T) {
-		err := Validate(Person{
-			ID:      "1",
-			Married: true,
-		})
-
+	t.Run("if type is not supported returns error", func(t *testing.T) {
+		err := Validate(Person{ID: "1", Married: true})
 		require.Error(t, err)
 		require.True(t, errors.Is(err, ErrUnsupportedValidationType))
 	})
