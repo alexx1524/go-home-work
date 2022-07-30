@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -18,7 +17,7 @@ type EnvValue struct {
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
 func ReadDir(dir string) (Environment, error) {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +59,9 @@ func getValue(fileName string) (EnvValue, error) {
 		return result, err
 	}
 	fileScanner := bufio.NewScanner(readFile)
+	if err := fileScanner.Err(); err != nil {
+		return result, err
+	}
 	if fileScanner.Scan() {
 		line := fileScanner.Text()
 		line = strings.TrimRight(line, string(rune(0x00)))

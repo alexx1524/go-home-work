@@ -1,16 +1,19 @@
 package main
 
-import "os"
+import (
+	"log"
+	"os"
+)
 
 func main() {
 	paramsCount := len(os.Args)
 
 	if paramsCount == 1 {
-		panic("Directory params is not defined")
+		log.Fatalln("Directory params is not defined")
 	}
 
 	if paramsCount == 2 {
-		panic("Command params is not defined")
+		log.Fatalln("Command params is not defined")
 	}
 
 	directory := os.Args[1]
@@ -18,8 +21,10 @@ func main() {
 
 	envVariables, err := ReadDir(directory)
 	if err != nil {
-		panic(err)
+		log.Fatalln("Ошибка чтения переменных окружения из директории", err)
 	}
 
-	RunCmd(commandParams, envVariables)
+	returnCode := RunCmd(commandParams, envVariables)
+
+	os.Exit(returnCode)
 }
