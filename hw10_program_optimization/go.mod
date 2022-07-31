@@ -1,10 +1,16 @@
-module github.com/fixme_my_friend/hw10_program_optimization
+module github.com/alexx1524/go-home-work/hw10_program_optimization
 
-go 1.16
+go 1.18
+
+require (
+	github.com/json-iterator/go v1.1.12
+	github.com/stretchr/testify v1.7.0
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/stretchr/testify v1.7.0
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
+	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
