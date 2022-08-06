@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -42,7 +43,7 @@ func send(wg *sync.WaitGroup, client *TelnetClient) {
 		if err := (*client).Send(); err != nil {
 			log.Fatalf("Ошибка получения данных %v", err)
 		}
-		log.Println("Соединение было закрыто удаленным хостом...")
+		fmt.Fprintln(os.Stderr, "Соединение было закрыто удаленным хостом...")
 	}()
 }
 
@@ -52,6 +53,6 @@ func receive(wg *sync.WaitGroup, client *TelnetClient) {
 		if err := (*client).Receive(); err != nil {
 			log.Fatalf("Ошибка чтения %v:", err)
 		}
-		log.Println("Соединение закрыто")
+		fmt.Fprintln(os.Stderr, "Соединение закрыто")
 	}()
 }
