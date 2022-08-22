@@ -1,3 +1,13 @@
-module github.com/fixme_my_friend/hw12_13_14_15_calendar
+module github.com/alexx1524/go-home-work/hw12_13_14_15_calendar
 
 go 1.16
+
+require (
+	github.com/google/uuid v1.3.0
+	github.com/gorilla/mux v1.8.0
+	github.com/jmoiron/sqlx v1.3.5
+	github.com/lib/pq v1.10.6
+	github.com/spf13/viper v1.12.0
+	github.com/stretchr/testify v1.8.0
+	go.uber.org/zap v1.17.0
+)
