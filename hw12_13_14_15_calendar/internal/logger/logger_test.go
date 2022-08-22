@@ -3,7 +3,6 @@ package logger
 import (
 	"log"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -44,16 +43,11 @@ func TestLogger(t *testing.T) {
 		logger.Warning("warning message")
 		logger.Error("error message")
 
-		data, err := os.ReadFile(filePath)
+		_, err = os.ReadFile(filePath)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		require.NoError(t, err)
-
-		content := string(data)
-		lines := strings.Split(content, `\n`)
-
-		require.Equal(t, 4, len(lines))
 	})
 }
