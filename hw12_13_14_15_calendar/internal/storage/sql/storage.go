@@ -45,7 +45,7 @@ func (s *Storage) InsertEvent(ctx context.Context, e storage.Event) error {
 	query := `SELECT count(id) FROM events WHERE id = $1`
 
 	var count int
-	err := s.db.QueryRow(query, e.ID).Scan(&count)
+	err := s.db.QueryRowContext(ctx, query, e.ID).Scan(&count)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (s *Storage) GetEventByID(ctx context.Context, id uuid.UUID) (event storage
 	query := `SELECT id, title, description, user_id, start_date, end_date FROM events 
               WHERE id = $1`
 
-	rows, err := s.db.Queryx(query, id)
+	rows, err := s.db.QueryxContext(ctx, query, id)
 	if err != nil {
 		return event, err
 	}
@@ -105,7 +105,7 @@ func (s *Storage) GetEventByID(ctx context.Context, id uuid.UUID) (event storage
 func (s *Storage) GetEventsCount(ctx context.Context) (count int, err error) {
 	query := `SELECT count(id) FROM events`
 
-	err = s.db.QueryRow(query).Scan(&count)
+	err = s.db.QueryRowContext(ctx, query).Scan(&count)
 	if err != nil {
 		return count, err
 	}
@@ -118,9 +118,9 @@ func (s *Storage) GetEventsForPeriod(ctx context.Context, start time.Time, end t
 
 	query := `SELECT id, title, description, user_id, start_date, end_date 
               FROM events 
-              WHERE start_date benween $1 AND $2`
+              WHERE start_date between $1 AND $2`
 
-	rows, err := s.db.Queryx(query, start, end)
+	rows, err := s.db.QueryxContext(ctx, query, start, end)
 	if err != nil {
 		return nil, err
 	}
