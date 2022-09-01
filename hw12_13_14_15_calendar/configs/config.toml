@@ -1,7 +1,7 @@
 storage_source="sql"
 
 [logger]
-level = "info"
+level = "debug"
 file = "log.txt"
 
 [dbstorage]

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"google.golang.org/grpc/codes"
 	"net"
 	"net/http"
 	"os"
@@ -35,6 +36,7 @@ type Application interface {
 type Logger interface {
 	Error(msg string)
 	Info(msg string)
+	LogGRPCRequest(code codes.Code, method, address string, requestDuration time.Duration)
 }
 
 type CalendarService struct {
@@ -44,7 +46,10 @@ type CalendarService struct {
 }
 
 func NewServer(logger Logger, app Application, config config.Config) *Server {
-	grpcServer := grpc.NewServer()
+	interceptor := grpc.ChainUnaryInterceptor(
+		LoggingInterceptor(logger),
+	)
+	grpcServer := grpc.NewServer(interceptor)
 	service := &CalendarService{
 		app:    app,
 		logger: logger,

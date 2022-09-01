@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"google.golang.org/grpc/codes"
 	"net/http"
 	"os"
 	"time"
@@ -64,4 +65,8 @@ func (l *Logger) Debug(msg string) {
 
 func (l *Logger) LogHTTPRequest(r *http.Request, statusCode int, duration time.Duration) {
 	l.logger.Debug(fmt.Sprintf("%s, %v, %v", r.RequestURI, statusCode, duration))
+}
+
+func (l *Logger) LogGRPCRequest(code codes.Code, method, address string, requestDuration time.Duration) {
+	l.logger.Debug(fmt.Sprintf("%v, %s, %s, %v", code, method, address, requestDuration))
 }
