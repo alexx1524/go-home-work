@@ -2,13 +2,13 @@ package logger
 
 import (
 	"fmt"
-	"google.golang.org/grpc/codes"
 	"net/http"
 	"os"
 	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"google.golang.org/grpc/codes"
 )
 
 type Logger struct {

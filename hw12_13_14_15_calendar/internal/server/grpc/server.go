@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"google.golang.org/grpc/codes"
 	"net"
 	"net/http"
 	"os"
@@ -15,6 +14,7 @@ import (
 	"github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/storage"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 type Server struct {
