@@ -14,10 +14,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type EventsSearchCriteria struct {
+	StartDate time.Time `json:"startDate"`
+	EndDate   time.Time `json:"endDate"`
+}
+
 type Server struct {
 	logger Logger
 	app    Application
 	server *http.Server
+	Router *mux.Router
 }
 
 type Logger interface {
@@ -51,9 +57,10 @@ func NewServer(logger Logger, app Application, config config.Config) *Server {
 		logger: logger,
 		app:    app,
 		server: httpServer,
+		Router: router,
 	}
 
-	router.HandleFunc("/", server.HelloWorld).Methods("GET")
+	server.InitializeEventsRoutes()
 
 	loggingMiddleware := loggingMiddleware{
 		logger: logger,
@@ -78,7 +85,6 @@ func (s *Server) Stop(ctx context.Context) error {
 		s.logger.Error(fmt.Sprintf("ошибка останова http сервера: %s", err))
 	}
 	<-ctx.Done()
-
 	return nil
 }
 

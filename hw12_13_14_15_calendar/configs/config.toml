@@ -11,3 +11,7 @@ conn_string="postgres://pguser:pgpwd@localhost:5432/calendar?sslmode=disable"
 host="localhost"
 port="9000"
 read_header_timeout_sec=10
+
+[grpcserver]
+port="50051"
+host="localhost"
