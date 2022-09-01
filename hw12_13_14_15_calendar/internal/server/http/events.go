@@ -90,15 +90,15 @@ func (s *Server) getEvent(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) searchEvents(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var searchCritaria EventsSearchCriteria
+	var searchCriteria EventsSearchCriteria
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&searchCritaria); err != nil {
+	if err := decoder.Decode(&searchCriteria); err != nil {
 		respondWithError(w, http.StatusBadRequest, "invalid request payload")
 		return
 	}
 	defer r.Body.Close()
 
-	events, err := s.app.GetEventsForPeriod(ctx, searchCritaria.StartDate, searchCritaria.EndDate)
+	events, err := s.app.GetEventsForPeriod(ctx, searchCriteria.StartDate, searchCriteria.EndDate)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
