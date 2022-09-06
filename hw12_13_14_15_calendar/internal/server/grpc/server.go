@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/config"
@@ -76,7 +75,6 @@ func (s *Server) Start(ctx context.Context) error {
 
 	if err := s.server.Serve(lsn); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		s.logger.Error(fmt.Sprintf("listen: %s", err.Error()))
-		os.Exit(1)
 	}
 
 	<-ctx.Done()
@@ -87,8 +85,6 @@ func (s *Server) Start(ctx context.Context) error {
 func (s *Server) Stop(ctx context.Context) error {
 	s.logger.Info("grpc is stopping...")
 	s.server.GracefulStop()
-
-	<-ctx.Done()
 
 	return nil
 }
