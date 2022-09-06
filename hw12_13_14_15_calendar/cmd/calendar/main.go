@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
+	"fmt"
 	"log"
-	"os"
+	"net/http"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/app"
 	cfg "github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/config"
 	internallogger "github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/server/http"
 	internalstorage "github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/storage/memory"
@@ -50,29 +52,36 @@ func main() {
 
 	calendar := app.New(logg, storage)
 
-	server := internalhttp.NewServer(logg, calendar, config)
+	httpServer := internalhttp.NewServer(logg, calendar, config)
+	grpcServer := internalgrpc.NewServer(logg, calendar, config)
 
-	ctx, cancel := signal.NotifyContext(context.Background(),
-		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
-
-	go func() {
-		<-ctx.Done()
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
-		}
-	}()
 
 	logg.Info("calendar is running...")
 
-	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
+	go func() {
+		logg.Info("Http server is starting...")
+		if err := httpServer.Start(ctx); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logg.Error(fmt.Sprintf("listen: %s", err.Error()))
+		}
+	}()
+
+	go func() {
+		logg.Info("gRPC server is starting...")
+		if err := grpcServer.Start(ctx); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logg.Error(fmt.Sprintf("listen: %s", err.Error()))
+		}
+	}()
+
+	<-ctx.Done()
+
+	if err := httpServer.Stop(ctx); err != nil {
+		logg.Error(fmt.Sprintf("Http server stopping error: %s", err.Error()))
+	}
+
+	if err := grpcServer.Stop(ctx); err != nil {
+		logg.Error(fmt.Sprintf("gRPC server stopping error: %s", err.Error()))
 	}
 }
 

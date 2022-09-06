@@ -11,11 +11,12 @@ type Config struct {
 	StorageSource string `mapstructure:"storage_source"`
 	DBStorage     DBStorage
 	HTTPServer    HTTPServer
+	GRPCServer    GRPCServer
 }
 
 type LoggerConf struct {
 	Level string `mapstructure:"level"`
-	File  string `mapstructrue:"file"`
+	File  string `mapstructure:"file"`
 }
 
 type DBStorage struct {
@@ -26,6 +27,11 @@ type HTTPServer struct {
 	Host                     string `mapstructure:"host"`
 	Port                     string `mapstructure:"port"`
 	ReadHeaderTimeoutSeconds int    `mapstructure:"read_header_timeout_sec"`
+}
+
+type GRPCServer struct {
+	Host string `mapstructure:"host"`
+	Port string `mapstructure:"port"`
 }
 
 func buildConfig(configFilePath string) (Config, error) {

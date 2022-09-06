@@ -4,6 +4,9 @@ DOCKER_IMG="calendar:develop"
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
+generate:
+	go generate ./api/generate.go
+
 migrate-db:
 	goose --dir=migrations postgres "postgres://pguser:pgpwd@localhost:5432/calendar?sslmode=disable" up
 
