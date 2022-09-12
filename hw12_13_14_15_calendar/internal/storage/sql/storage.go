@@ -137,3 +137,15 @@ func (s *Storage) GetEventsForPeriod(ctx context.Context, start time.Time, end t
 
 	return events, nil
 }
+
+func (s *Storage) RemoveEventsFinishedBeforeDate(ctx context.Context, date time.Time) (count int, err error) {
+	query := `WITH deleted AS (DELETE FROM events WHERE end_date < $1 RETURNING *) 
+              SELECT count(*) FROM deleted;`
+
+	err = s.db.QueryRowContext(ctx, query, date).Scan(&count)
+	if err != nil {
+		return count, err
+	}
+
+	return count, nil
+}

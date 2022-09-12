@@ -85,3 +85,21 @@ func (s *Storage) GetEventsForPeriod(ctx context.Context, start time.Time, end t
 
 	return events, nil
 }
+
+func (s *Storage) RemoveEventsFinishedBeforeDate(ctx context.Context, date time.Time) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	removeItems := make([]uuid.UUID, 0)
+	for k, v := range s.events {
+		if v.EndDate.Before(date) {
+			removeItems = append(removeItems, k)
+		}
+	}
+
+	for _, id := range removeItems {
+		delete(s.events, id)
+	}
+
+	return len(removeItems), nil
+}
