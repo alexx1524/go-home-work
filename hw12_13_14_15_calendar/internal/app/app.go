@@ -27,6 +27,7 @@ type Storage interface {
 	GetEventByID(ctx context.Context, eventID uuid.UUID) (storage.Event, error)
 	GetEventsCount(ctx context.Context) (int, error)
 	GetEventsForPeriod(ctx context.Context, dateStart time.Time, dateEnd time.Time) ([]storage.Event, error)
+	RemoveEventsFinishedBeforeDate(ctx context.Context, date time.Time) (count int, err error)
 }
 
 func New(logger Logger, storage Storage) *App {

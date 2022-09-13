@@ -147,3 +147,34 @@ func TestStorage(t *testing.T) {
 		require.Equal(t, 4, len(events))
 	})
 }
+
+func TestRemoving(t *testing.T) {
+	t.Run("remove completed events", func(t *testing.T) {
+		memoryStorage := New()
+		ctx := context.Background()
+		oldEvent := storage.Event{
+			ID:        uuid.New(),
+			Title:     "title1",
+			StartDate: time.Date(2022, time.August, 1, 1, 0, 0, 0, time.UTC),
+			EndDate:   time.Date(2022, time.September, 1, 1, 0, 0, 0, time.UTC),
+		}
+		event := storage.Event{
+			ID:        uuid.New(),
+			Title:     "title1",
+			StartDate: time.Now(),
+			EndDate:   time.Now().AddDate(0, 1, 0),
+		}
+
+		_ = memoryStorage.InsertEvent(ctx, oldEvent)
+		_ = memoryStorage.InsertEvent(ctx, event)
+
+		deletedCount, err := memoryStorage.RemoveEventsFinishedBeforeDate(ctx, time.Now().AddDate(0, 0, -1))
+
+		require.Equal(t, 1, deletedCount)
+		require.NoError(t, err)
+
+		count, err := memoryStorage.GetEventsCount(ctx)
+		require.Equal(t, 1, count)
+		require.NoError(t, err)
+	})
+}

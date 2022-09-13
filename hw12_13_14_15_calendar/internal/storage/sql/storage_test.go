@@ -8,10 +8,12 @@ import (
 	"errors"
 	"log"
 	"testing"
+	"time"
 
 	"github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/storage"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 )
 
@@ -171,5 +173,45 @@ func TestStorage(t *testing.T) {
 
 		require.Error(t, err)
 		require.True(t, errors.Is(err, storage.ErrorEventNotFound))
+	})
+
+	t.Run("remove completed events", func(t *testing.T) {
+		ctx := context.Background()
+		err := clearDB(ctx, connectionString)
+		if err != nil {
+			log.Fatal(err)
+		}
+		sqlStorage, err := New(connectionString)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer sqlStorage.Close()
+
+		oldEvent := storage.Event{
+			ID:        uuid.New(),
+			Title:     "title1",
+			StartDate: time.Date(2022, time.August, 1, 1, 0, 0, 0, time.UTC),
+			EndDate:   time.Date(2022, time.September, 1, 1, 0, 0, 0, time.UTC),
+		}
+		event := storage.Event{
+			ID:        uuid.New(),
+			Title:     "title1",
+			StartDate: time.Now(),
+			EndDate:   time.Now().AddDate(0, 1, 0),
+		}
+
+		err = sqlStorage.InsertEvent(ctx, oldEvent)
+		require.NoError(t, err)
+		err = sqlStorage.InsertEvent(ctx, event)
+		require.NoError(t, err)
+
+		deletedCount, err := sqlStorage.RemoveEventsFinishedBeforeDate(ctx, time.Now().AddDate(0, 0, -1))
+
+		require.Equal(t, 1, deletedCount)
+		require.NoError(t, err)
+
+		count, err := sqlStorage.GetEventsCount(ctx)
+		require.Equal(t, 1, count)
+		require.NoError(t, err)
 	})
 }

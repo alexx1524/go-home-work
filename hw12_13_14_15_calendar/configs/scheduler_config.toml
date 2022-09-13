@@ -1,0 +1,11 @@
+[logger]
+level = "debug"
+file = "sender_log.txt"
+
+[rabbit]
+conn_string="amqp://user:password@localhost:5672/"
+exchange="events_exchange"
+queue="notification_queue"
+
+[dbstorage]
+conn_string="postgres://pguser:pgpwd@localhost:5432/calendar?sslmode=disable"

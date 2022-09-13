@@ -12,6 +12,7 @@ type Config struct {
 	DBStorage     DBStorage
 	HTTPServer    HTTPServer
 	GRPCServer    GRPCServer
+	Rabbit        Rabbit
 }
 
 type LoggerConf struct {
@@ -32,6 +33,12 @@ type HTTPServer struct {
 type GRPCServer struct {
 	Host string `mapstructure:"host"`
 	Port string `mapstructure:"port"`
+}
+
+type Rabbit struct {
+	ConnectionString string `mapstructure:"conn_string"`
+	Exchange         string `mapstructure:"exchange"`
+	Queue            string `mapstructure:"queue"`
 }
 
 func buildConfig(configFilePath string) (Config, error) {

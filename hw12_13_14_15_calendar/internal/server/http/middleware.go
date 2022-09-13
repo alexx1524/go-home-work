@@ -10,7 +10,7 @@ type loggingWriter struct {
 	statusCode int
 }
 
-func NewLoggingResponseWriter(w http.ResponseWriter) *loggingWriter {
+func newLoggingResponseWriter(w http.ResponseWriter) *loggingWriter {
 	return &loggingWriter{w, http.StatusOK}
 }
 
@@ -22,7 +22,7 @@ func (lrw *loggingWriter) WriteHeader(code int) {
 func (logMiddleware *loggingMiddleware) Process(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		logWriter := NewLoggingResponseWriter(w)
+		logWriter := newLoggingResponseWriter(w)
 		next.ServeHTTP(w, r)
 		logMiddleware.logger.LogHTTPRequest(r, logWriter.statusCode, time.Since(start))
 	})
