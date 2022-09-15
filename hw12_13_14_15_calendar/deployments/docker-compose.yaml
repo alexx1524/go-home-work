@@ -1,1 +1,62 @@
 version: "3"
+
+services:
+  calendar_postgres:
+    container_name: calendar_postgres
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+        - "5432:5432"
+    volumes:
+        - postgres:/var/lib/postgresql/data
+    restart: always
+
+  calendar_rabbitmq:
+    container_name: calendar_rabbitmq
+    image: rabbitmq:3-management-alpine
+    restart: always
+    volumes:
+      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+      - ./rabbitmq/logs:/var/log/rabbitmq/log
+    ports:
+      - ${RABBIT_ADMIN_PORT}:15672
+      - ${RABBIT_PORT}:5672
+
+  calendar:
+    build:
+      context: ../
+      dockerfile: ./build/calendar.dockerfile
+    restart: always
+    ports:
+      - ${HTTP_PORT}:9000
+      - ${GRPC_PORT}:50051
+    depends_on:
+    - calendar_db
+
+  calendar_scheduler:
+    build:
+      context: ../
+      dockerfile: ./build/scheduler.dockerfile
+    restart: always
+    depends_on:
+      - calendar_postgres
+      - calendar_rabbitmq
+
+  calendar_sender:
+    build:
+      context: ../
+      dockerfile: ./build/sender.dockerfile
+    restart: always
+    depends_on:
+      - calendar_rabbitmq
+
+volumes:
+  postgres:
+    driver: local
+
+networks:
+  default:
+    name: calendar_network
