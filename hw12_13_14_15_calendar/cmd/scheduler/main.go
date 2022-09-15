@@ -53,7 +53,7 @@ func main() {
 
 	storage, err := sqlstorage.New(config.DBStorage.ConnectionString)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panicln(err)
 	}
 	defer storage.Close()
 	logger.Info("Storage is created")
