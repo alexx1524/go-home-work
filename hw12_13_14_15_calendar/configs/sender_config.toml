@@ -3,6 +3,6 @@ level = "debug"
 file = "sender_log.txt"
 
 [rabbit]
-conn_string="amqp://user:password@localhost:5672/"
+conn_string="amqp://guest:guest@calendar_rabbitmq:5672"
 exchange="events_exchange"
 queue="notification_queue"

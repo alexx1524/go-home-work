@@ -36,16 +36,13 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-	defer cancel()
-
 	connectionString := config.Rabbit.ConnectionString
 	exchangeName := config.Rabbit.Exchange
 	queueName := config.Rabbit.Queue
 
 	producer, err := rabbitmq.NewConnector(connectionString, exchangeName, queueName)
 	if err != nil {
-		logger.Error(err.Error())
+		log.Fatalln(err)
 	}
 	defer func(connector rabbitmq.Connector) {
 		err := connector.Close()
@@ -56,9 +53,10 @@ func main() {
 
 	storage, err := sqlstorage.New(config.DBStorage.ConnectionString)
 	if err != nil {
-		logger.Error(err.Error())
+		log.Fatalln(err)
 	}
 	defer storage.Close()
+	logger.Info("Storage is created")
 
 	scheduler := internalscheduler.NewScheduler(logger, storage)
 
@@ -75,6 +73,9 @@ func main() {
 			}
 		}
 	}()
+
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	defer cancel()
 
 	err = scheduler.Run(ctx)
 	if err != nil {

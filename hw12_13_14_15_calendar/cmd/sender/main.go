@@ -32,16 +32,14 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-	defer cancel()
-
 	connectionString := config.Rabbit.ConnectionString
 	exchangeName := config.Rabbit.Exchange
 	queueName := config.Rabbit.Queue
 
+	logger.Info("Start to connect to rabbitmq")
 	consumer, err := rabbitmq.NewConnector(connectionString, exchangeName, queueName)
 	if err != nil {
-		logger.Error(err.Error())
+		log.Fatalln(err)
 	}
 	defer func(consumer rabbitmq.Connector) {
 		err := consumer.Close()
@@ -50,12 +48,18 @@ func main() {
 		}
 	}(consumer)
 
+	logger.Info("Start consuming messages")
 	channel, err := consumer.Consume()
 	if err != nil {
 		logger.Error(err.Error())
 	}
 
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	defer cancel()
+
 	go func() {
+		logger.Info("Reading the notifications channel is started")
+
 		for event := range channel {
 			message := fmt.Sprintf("Received message: %s", string(event.Body))
 			logger.Debug(message)

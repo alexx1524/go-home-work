@@ -5,14 +5,23 @@ services:
     container_name: calendar_postgres
     image: postgres:14-alpine
     environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-        - "5432:5432"
+        - ${POSTGRES_PORT}:5432
     volumes:
         - postgres:/var/lib/postgresql/data
     restart: always
+
+  calendar_db_migrations:
+    container_name: calendar_db_migrations
+    restart: on-failure
+    build:
+      context: ../
+      dockerfile: ./build/dbmigrations.dockerfile
+    depends_on:
+      - calendar_postgres
 
   calendar_rabbitmq:
     container_name: calendar_rabbitmq
@@ -24,6 +33,11 @@ services:
     ports:
       - ${RABBIT_ADMIN_PORT}:15672
       - ${RABBIT_PORT}:5672
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   calendar:
     build:
@@ -34,7 +48,7 @@ services:
       - ${HTTP_PORT}:9000
       - ${GRPC_PORT}:50051
     depends_on:
-    - calendar_db
+    - calendar_postgres
 
   calendar_scheduler:
     build:
@@ -44,6 +58,9 @@ services:
     depends_on:
       - calendar_postgres
       - calendar_rabbitmq
+    links:
+      - calendar_postgres
+      - calendar_rabbitmq
 
   calendar_sender:
     build:
@@ -51,6 +68,9 @@ services:
       dockerfile: ./build/sender.dockerfile
     restart: always
     depends_on:
+      - calendar_rabbitmq
+    links:
+      - calendar_postgres
       - calendar_rabbitmq
 
 volumes:
