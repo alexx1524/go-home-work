@@ -12,6 +12,9 @@ up: build
 down:
 	docker-compose --env-file deployments/.env -f deployments/docker-compose.yaml down
 
+integration-tests: build up
+
+
 generate:
 	go generate ./api/generate.go
 

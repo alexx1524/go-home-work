@@ -8,6 +8,8 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.6
+	github.com/onsi/ginkgo/v2 v2.1.6
+	github.com/onsi/gomega v1.20.2
 	github.com/spf13/viper v1.12.0
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.8.0
