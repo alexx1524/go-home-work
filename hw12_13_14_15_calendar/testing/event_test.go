@@ -3,12 +3,12 @@ package testing_test
 import (
 	"context"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"log"
 	"time"
 
 	"github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/server/grpc/eventpb"
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
