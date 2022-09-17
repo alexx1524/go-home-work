@@ -2,11 +2,14 @@ package testing_test
 
 import (
 	"context"
+	"fmt"
+	"github.com/jmoiron/sqlx"
 	"log"
 	"time"
 
 	"github.com/alexx1524/go-home-work/hw12_13_14_15_calendar/internal/server/grpc/eventpb"
 	"github.com/google/uuid"
+	_ "github.com/lib/pq"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
@@ -16,7 +19,17 @@ import (
 
 var _ = Describe("gRpc adding a new event", func() {
 	BeforeEach(func() {
-		// TODO: remove all events
+		ctx := context.Background()
+		connectionString := "postgres://pguser:pgpwd@localhost:5432/calendar?sslmode=disable"
+		db, err := sqlx.Open("postgres", connectionString)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+
+		_, _ = db.ExecContext(ctx, "DELETE FROM events;")
+
+		fmt.Println("All event were removed")
 	})
 
 	Context("when event is correct", func() {
