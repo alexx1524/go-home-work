@@ -5,13 +5,13 @@ level = "debug"
 file = "log.txt"
 
 [dbstorage]
-conn_string="postgres://pguser:pgpwd@localhost:5432/calendar?sslmode=disable"
+conn_string="postgres://pguser:pgpwd@calendar_postgres:5432/calendar?sslmode=disable"
 
 [httpserver]
-host="localhost"
+host="0.0.0.0"
 port="9000"
 read_header_timeout_sec=10
 
 [grpcserver]
 port="50051"
-host="localhost"
+host="0.0.0.0"

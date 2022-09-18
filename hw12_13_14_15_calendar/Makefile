@@ -6,6 +6,19 @@ DOCKER_IMG="calendar:develop"
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
+up: build
+	docker-compose --env-file deployments/.env -f deployments/docker-compose.yaml up -d --build --remove-orphans
+
+down:
+	docker-compose --env-file deployments/.env -f deployments/docker-compose.yaml down
+
+integration-tests: up
+	docker-compose -f deployments/docker-compose.tests.yaml up --build
+	result=$?
+	docker-compose -f deployments/docker-compose.tests.yaml down
+	docker-compose -f deployments/docker-compose.yaml down
+	exit ${result}
+
 generate:
 	go generate ./api/generate.go
 
