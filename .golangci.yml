@@ -4,6 +4,11 @@ run:
     - bench
     - !bench
 
+  run:
+    skip-files:
+      - ./testing/event_test.go
+      - ./testing/testing_suite_test.go
+
 linters-settings:
   funlen:
     lines: 150
