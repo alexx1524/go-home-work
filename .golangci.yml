@@ -4,10 +4,9 @@ run:
     - bench
     - !bench
 
-  run:
-    skip-files:
-      - ./testing/event_test.go
-      - ./testing/testing_suite_test.go
+  skip-files:
+    - event_test.go
+    - testing_suite_test.go
 
 linters-settings:
   funlen:
