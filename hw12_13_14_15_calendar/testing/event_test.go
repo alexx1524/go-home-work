@@ -20,7 +20,7 @@ import (
 var _ = Describe("gRpc adding a new event", func() {
 	BeforeEach(func() {
 		ctx := context.Background()
-		connectionString := "postgres://pguser:pgpwd@localhost:5432/calendar?sslmode=disable"
+		connectionString := "postgres://pguser:pgpwd@calendar_postgres:5432/calendar?sslmode=disable"
 		db, err := sqlx.Open("postgres", connectionString)
 		if err != nil {
 			log.Fatal(err)
@@ -35,7 +35,7 @@ var _ = Describe("gRpc adding a new event", func() {
 	Context("when event is correct", func() {
 		It("adds a new event successfully", func() {
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "0.0.0.0:50051",
+			conn, err := grpc.DialContext(ctx, "calendar:50051",
 				grpc.WithTransportCredentials(insecure.NewCredentials()))
 			if err != nil {
 				log.Fatal(err)
@@ -70,7 +70,7 @@ var _ = Describe("gRpc adding a new event", func() {
 	Context("when id of event is incorrect GUID", func() {
 		It("returns error", func() {
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "0.0.0.0:50051",
+			conn, err := grpc.DialContext(ctx, "calendar:50051",
 				grpc.WithTransportCredentials(insecure.NewCredentials()))
 			if err != nil {
 				log.Fatal(err)
@@ -97,7 +97,7 @@ var _ = Describe("gRpc adding a new event", func() {
 	Context("when there are events for today", func() {
 		It("returns only events for one day", func() {
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "0.0.0.0:50051",
+			conn, err := grpc.DialContext(ctx, "calendar:50051",
 				grpc.WithTransportCredentials(insecure.NewCredentials()))
 			if err != nil {
 				log.Fatal(err)
