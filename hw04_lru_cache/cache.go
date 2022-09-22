@@ -7,6 +7,7 @@ import (
 type Key string
 
 type Cache interface {
+	SetRemoveItemsChan(chan<- RemovedItem)
 	Set(key Key, value interface{}) bool
 	Get(key Key) (interface{}, bool)
 	Clear()
@@ -17,6 +18,12 @@ type lruCache struct {
 	queue    List
 	items    map[Key]*ListItem
 	mutex    sync.Mutex
+	ch       chan<- RemovedItem
+}
+
+type RemovedItem struct {
+	key   Key
+	value interface{}
 }
 
 type cacheItem struct {
@@ -44,6 +51,15 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 		backItem := c.queue.Back()
 		delete(c.items, backItem.Value.(*cacheItem).key)
 		c.queue.Remove(c.queue.Back())
+
+		// write removed item to the channel
+		if c.ch != nil {
+			backCachedItem := backItem.Value.(*cacheItem)
+			c.ch <- RemovedItem{
+				key:   backCachedItem.key,
+				value: backCachedItem.value,
+			}
+		}
 	}
 	return false
 }
@@ -70,10 +86,16 @@ func (c *lruCache) Clear() {
 	c.items = make(map[Key]*ListItem, c.capacity)
 }
 
+// SetRemoveItemsChan sets the channel to get removed elements
+func (c *lruCache) SetRemoveItemsChan(ch chan<- RemovedItem) {
+	c.ch = ch
+}
+
 func NewCache(capacity int) Cache {
 	return &lruCache{
 		capacity: capacity,
 		queue:    NewList(),
 		items:    make(map[Key]*ListItem, capacity),
+		ch:       make(chan RemovedItem),
 	}
 }
