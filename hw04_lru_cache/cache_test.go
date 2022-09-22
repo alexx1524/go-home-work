@@ -74,7 +74,7 @@ func TestCache(t *testing.T) {
 		c.Set("4", 4)
 
 		removedItem := <-ch
-		require.Equal(t, "1", string(removedItem.key))
+		require.Equal(t, "1", string(removedItem.Key))
 
 		value, ok := c.Get("1")
 
