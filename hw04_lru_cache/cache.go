@@ -22,8 +22,8 @@ type lruCache struct {
 }
 
 type RemovedItem struct {
-	key   Key
-	value interface{}
+	Key   Key
+	Value interface{}
 }
 
 type cacheItem struct {
@@ -56,8 +56,8 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 		if c.ch != nil {
 			backCachedItem := backItem.Value.(*cacheItem)
 			c.ch <- RemovedItem{
-				key:   backCachedItem.key,
-				value: backCachedItem.value,
+				Key:   backCachedItem.key,
+				Value: backCachedItem.value,
 			}
 		}
 	}
@@ -96,6 +96,5 @@ func NewCache(capacity int) Cache {
 		capacity: capacity,
 		queue:    NewList(),
 		items:    make(map[Key]*ListItem, capacity),
-		ch:       make(chan RemovedItem),
 	}
 }
