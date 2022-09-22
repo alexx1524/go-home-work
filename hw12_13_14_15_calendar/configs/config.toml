@@ -1,5 +1,13 @@
-[logger]
-level = "INFO"
+storage_source="sql"
 
-# TODO
-# ...
+[logger]
+level = "info"
+file = "log.txt"
+
+[dbstorage]
+conn_string="postgres://pguser:pgpwd@localhost:5432/calendar?sslmode=disable"
+
+[httpserver]
+host="localhost"
+port="9000"
+read_header_timeout_sec=10
