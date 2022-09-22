@@ -61,6 +61,27 @@ func TestCache(t *testing.T) {
 		require.Nil(t, value)
 	})
 
+	t.Run("purge logic with notification", func(t *testing.T) {
+		c := NewCache(3)
+
+		ch := make(chan RemovedItem, 1)
+		c.SetRemoveItemsChan(ch)
+
+		c.Set("1", 1)
+		c.Set("2", 2)
+		c.Set("3", 3)
+
+		c.Set("4", 4)
+
+		removedItem := <-ch
+		require.Equal(t, "1", string(removedItem.key))
+
+		value, ok := c.Get("1")
+
+		require.False(t, ok)
+		require.Nil(t, value)
+	})
+
 	t.Run("purge the oldest item", func(t *testing.T) {
 		c := NewCache(3)
 		c.Set("1", 1)
