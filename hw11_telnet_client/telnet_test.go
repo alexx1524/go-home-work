@@ -2,9 +2,13 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
+	"log"
 	"net"
+	"os"
 	"sync"
+	"syscall"
 	"testing"
 	"time"
 
@@ -61,5 +65,65 @@ func TestTelnetClient(t *testing.T) {
 		}()
 
 		wg.Wait()
+	})
+
+	t.Run("multiple connections", func(t *testing.T) {
+		listener, err := net.Listen("tcp", "127.0.0.1:")
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		require.NoError(t, err)
+		defer func() { require.NoError(t, listener.Close()) }()
+
+		in := &bytes.Buffer{}
+		out := &bytes.Buffer{}
+
+		client1 := NewTelnetClient(listener.Addr().String(), time.Second*10, ioutil.NopCloser(in), out)
+		err1 := client1.Connect()
+
+		client2 := NewTelnetClient(listener.Addr().String(), time.Second*10, ioutil.NopCloser(in), out)
+		err2 := client2.Connect()
+
+		require.NoError(t, err1)
+		require.NoError(t, err2)
+
+		err1 = client1.Close()
+		err2 = client2.Close()
+
+		require.NoError(t, err1)
+		require.NoError(t, err2)
+	})
+
+	t.Run("timeout", func(t *testing.T) {
+		listener, err := net.Listen("tcp", "127.0.0.1:")
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		require.NoError(t, err)
+		defer func() { require.NoError(t, listener.Close()) }()
+
+		in := &bytes.Buffer{}
+		out := &bytes.Buffer{}
+
+		client := NewTelnetClient(listener.Addr().String(), time.Nanosecond, ioutil.NopCloser(in), out)
+		err = client.Connect()
+
+		require.Error(t, err)
+	})
+
+	t.Run("connection refused", func(t *testing.T) {
+		in := &bytes.Buffer{}
+		out := &bytes.Buffer{}
+
+		client := NewTelnetClient("127.0.0.1:2222", time.Second*10, ioutil.NopCloser(in), out)
+		err := client.Connect()
+
+		var connRefusedError *os.SyscallError
+
+		require.Error(t, err)
+		require.True(t, errors.As(err, &connRefusedError))
+		require.True(t, errors.Is(connRefusedError.Err, syscall.ECONNREFUSED))
 	})
 }
